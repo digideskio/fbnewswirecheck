@@ -4,4 +4,4 @@ ruby "2.0.0"
 gem 'rake'
 gem 'koala'
 gem 'postmark'
-gem 'dotenv-rails', :groups => [:development, :test]
+gem 'foreman', :groups => [:development, :test]

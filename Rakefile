@@ -1,9 +1,8 @@
-require 'dotenv/tasks'
 require 'postmark'
 
 task default: %w[check]
 
-task :check => :dotenv do
+task :check do
   require 'time'
   require 'koala'
   
