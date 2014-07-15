@@ -1,18 +1,16 @@
 require 'postmark'
+require 'time'
+require 'koala'
+
+WARN_TIME = Integer(ENV['WARN_TIME'])  # in minutes
+WARN_RECIPIENTS = ENV['WARN_RECIPIENTS'] # Email recipients to email on warning
+ERROR_RECIPIENTS = ENV['ERROR_RECIPIENTS'] # Email recipients to email on error
+INFO_RECIPIENTS = ENV['INFO_RECIPIENTS'] # Email recipients to email on info
+FROM_EMAIL = ENV['FROM_EMAIL']
 
 task default: %w[check]
 
 task :check do
-  require 'time'
-  require 'koala'
-  
-  WARN_TIME = Integer(ENV['WARN_TIME'])  # in minutes
-  WARN_RECIPIENTS = 'paul.watson+warn@storyful.com' # Email recipients to email on warning
-  ERROR_RECIPIENTS = 'paul.watson+error@storyful.com' # Email recipients to email on error
-  INFO_RECIPIENTS = 'paul.watson+info@storyful.com' # Email recipients to email on info
-  FROM_EMAIL = 'sysadmin@storyful.com'
-  
-  
   begin
     graph = Koala::Facebook::API.new(ENV['FACEBOOK_GRAPH_API_TOKEN'])
     
