@@ -16,11 +16,23 @@ task :check do
     
     client = Postmark::ApiClient.new(ENV['POSTMARK_API_KEY'])
   
-    posts = graph.get_object("fbnewswire/feed?limit=1")
+    posts = graph.get_object("fbnewswire/feed")
     if posts.length > 0
-      latest_post_time = Time.parse(posts[0]['created_time'])
-      time_diff = ((Time.now - latest_post_time) / 60).round
-      if time_diff >= WARN_TIME
+      start_time = Time.now
+      smallest_diff = WARN_TIME
+      
+      posts.each do |post|
+        post_time = Time.parse(post['created_time'])
+        time_diff = ((start_time - post_time) / 60).round
+        puts time_diff
+        puts post_time
+        
+        if (time_diff < smallest_diff)
+          smallest_diff = time_diff
+        end
+      end
+        
+      if smallest_diff >= WARN_TIME
         puts "INFO: WARN: No post in the last #{WARN_TIME} minutes"
         client.deliver( from: FROM_EMAIL,
                         to: WARN_RECIPIENTS,
@@ -47,4 +59,16 @@ task :check do
                     subject: "[FBNEWSWIRE] EXCEPTION",
                     text_body: "#{e.message}")
   end
+end
+
+task :get_token_url do
+  oauth = Koala::Facebook::OAuth.new(ENV['FACEBOOK_APP_ID'], ENV['FACEBOOK_APP_SECRET'], 'http://fbnewswirecheck.dev/')
+  puts "INFO: URL for oAuth Code: #{oauth.url_for_oauth_code(permissions: 'read_stream')}"
+  puts "INFO: Follow the URL, authorise then copy code key from address bar."
+  puts "INFO: Now run rake refresh_token code=THECODEHERE"
+end
+
+task :refresh_token do
+  puts "INFO: Now visit: https://graph.facebook.com/oauth/access_token?client_id=#{ENV['FACEBOOK_APP_ID']}&redirect_uri=http://fbnewswirecheck.dev/&client_secret=#{ENV['FACEBOOK_APP_SECRET']}&code=#{ENV['code']}"
+  puts "INFO: And copy the access token and set FACEBOOK_GRAPH_API_TOKEN value."
 end
