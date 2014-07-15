@@ -24,9 +24,6 @@ task :check do
       posts.each do |post|
         post_time = Time.parse(post['created_time'])
         time_diff = ((start_time - post_time) / 60).round
-        puts time_diff
-        puts post_time
-        
         if (time_diff < smallest_diff)
           smallest_diff = time_diff
         end
