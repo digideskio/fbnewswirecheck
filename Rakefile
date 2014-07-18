@@ -3,6 +3,7 @@ require 'time'
 require 'koala'
 
 WARN_TIME = Integer(ENV['WARN_TIME'])  # in minutes
+EMAIL_ON_INFO = ENV['EMAIL_ON_INFO'] == 'true'
 WARN_RECIPIENTS = ENV['WARN_RECIPIENTS'] # Email recipients to email on warning
 ERROR_RECIPIENTS = ENV['ERROR_RECIPIENTS'] # Email recipients to email on error
 INFO_RECIPIENTS = ENV['INFO_RECIPIENTS'] # Email recipients to email on info
@@ -30,17 +31,17 @@ task :check do
       end
         
       if smallest_diff >= WARN_TIME
-        puts "INFO: WARN: No post in the last #{WARN_TIME} minutes"
+        puts "WARN: No post in the last #{WARN_TIME} minutes"
         client.deliver( from: FROM_EMAIL,
                         to: WARN_RECIPIENTS,
-                        subject: "[FBNEWSWIRE] No post in the last #{WARN_TIME} minutes",
-                        text_body: "There was no new post on facebook.com/fbnewswire in the past #{WARN_TIME} minutes.")
+                        subject: "[FBNEWSWIRE] Warning, no post in the last #{WARN_TIME} minutes",
+                        text_body: "There was no new post on facebook.com/fbnewswire in the past #{WARN_TIME} minutes. Last post was #{smallest_diff} minutes ago.")
       else
-        puts "INFO: OK: Post in the last #{WARN_TIME} minutes"
+        puts "INFO: Post in the last #{WARN_TIME} minutes"
         client.deliver( from: FROM_EMAIL,
                         to: INFO_RECIPIENTS,
                         subject: "[FBNEWSWIRE] Post in the last #{WARN_TIME} minutes",
-                        text_body: "There was a new post on facebook.com/fbnewswire in the past #{WARN_TIME} minutes.")
+                        text_body: "There was a new post on facebook.com/fbnewswire in the past #{WARN_TIME} minutes.") if (EMAIL_ON_INFO)
       end
     else
       puts 'ERROR: No posts'
